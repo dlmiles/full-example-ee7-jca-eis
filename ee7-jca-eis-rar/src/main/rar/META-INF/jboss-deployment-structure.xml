@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+
+	<!-- FIXME is this XML files only used when the RAR is deployed standalone ?
+		When it is inside an EAR, only the toplevel META-INF/jboss-deployment-structure.xml is looked at -->
+
+	<deployment>
+		<module-alias name="org.darrylmiles.example.rar"/>
+
+		<!-- FIXME: We want all classes to be private implementation
+		details, except for some packages that we publish/export,
+		how do we do this with JBoss modules system ??? -->
+<!-- 		<exports> -->
+<!-- 			<include path="org/darrylmiles/example/ee7/jca/eis/rar/cci/**" /> -->
+<!-- 			<include path="org/darrylmiles/example/ee7/jca/eis/rar/spi/**" /> -->
+<!-- 		</exports> -->
+		<dependencies>
+			<module name="javax.api" />
+			<module name="javax.annotation.api" />
+			<module name="javax.transaction.api" />
+			<!-- <module name="javax.jms.api" /> -->
+
+			<!-- FIXME: Do we really needs to mark this export="true" ???
+			  I was not sure so I made it so.
+			  Again OSGi get this right, it knows which packages need which import packages, 
+			  so when it comes to export packages, 
+			  it only re-exports the packages needed by those parts  -->
+			<module name="javax.resource.api" export="true"/>
+
+			<module name="org.slf4j" />
+			<module name="org.jboss.logging" />
+		</dependencies>
+	</deployment>
+</jboss-deployment-structure>

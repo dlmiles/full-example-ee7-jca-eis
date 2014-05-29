@@ -1,0 +1,70 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.darrylmiles.example</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>ee7-jca-eis-ear</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>ear</packaging>
+	<name>${project.groupId}.${project.artifactId}</name>
+	<description>Example EAR Packaging</description>
+	<build>
+		<finalName>${project.groupId}.${project.artifactId}-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-ear-plugin</artifactId>
+				<configuration>
+					<version>6</version>
+					<!-- <defaultlibbundledir>..</defaultlibbundledir> --><!-- TRICK to exclude transative dependencies /dev/null them -->
+					<defaultLibBundleDir>lib</defaultLibBundleDir>
+					<earSourceDirectory>src/main/application</earSourceDirectory>
+					<!-- <applicationXml>src/main/application/META-INF/application.xml</applicationXml> --><!-- GENERATED -->
+					<generateApplicationXml>true</generateApplicationXml>
+					<!-- @{groupId}@.@{artifactId}@@{dashClassifier?}@-@{version}@.@{extension}@ -->
+					<fileNameMapping>full</fileNameMapping>
+					<!-- This is needed as there appears to be no way to auto-manage Class-Path settings -->
+					<!-- <includeLibInApplicationXml>true</includeLibInApplicationXml> -->
+					<modules>
+						<rarModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>ee7-jca-eis-rar</artifactId>
+							<moduleId>ee7-jca-eis-rar</moduleId>
+							<excluded>false</excluded><!-- EXCLUDED to try outside of EAR -->
+						</rarModule>
+						<ejbModule>
+							<groupId>${project.groupId}</groupId>
+							<artifactId>ee7-jca-eis-ejb</artifactId>
+							<moduleId>ee7-jca-eis-ejb</moduleId>
+							<excluded>false</excluded>
+						</ejbModule>
+					</modules>
+				</configuration>
+			</plugin>
+		</plugins>
+	</build>
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ee7-jca-eis-rar</artifactId>
+			<version>${version.defaultVersion}</version>
+			<scope>test</scope><!-- This is correct for EAR -->
+			<type>rar</type>
+			<exclusions>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ee7-jca-eis-ejb</artifactId>
+			<version>${version.defaultVersion}</version>
+			<scope>test</scope><!-- This is correct for EAR -->
+			<type>ejb</type>
+			<exclusions>
+			</exclusions>
+		</dependency>
+	</dependencies>
+</project>

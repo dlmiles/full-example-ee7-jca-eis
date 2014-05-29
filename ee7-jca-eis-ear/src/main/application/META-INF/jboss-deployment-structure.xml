@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jboss-deployment-structure xmlns="urn:jboss:deployment-structure:1.1">
+
+	<ear-subdeployments-isolated>false</ear-subdeployments-isolated> 
+
+	<deployment>
+		<module-alias name="org.darrylmiles.example.ear"/>
+		<dependencies>
+			<module name="javax.api" />
+			<module name="javax.jms.api" />
+			<module name="javax.annotation.api" />
+
+			<module name="org.slf4j" />
+			<module name="org.jboss.logging" />
+		</dependencies>
+	</deployment>
+
+	<!-- FIXME why does the Maven EAR plugin replace "." with "-" in the output filename ? -->
+	<sub-deployment name="org-darrylmiles-example-ee7-jca-eis-ejb-0.0.1-SNAPSHOT.jar">
+		<!-- module-alias="org.darrylmiles.example.ejb" -->
+
+		<!-- FIXME why can't I specify to take dependencies from inside the JAR from 
+		META-INF/jboss-deployment-structure.xml ?  Again OSGi gets management of this problem right.
+		So now I have to know my own sub-deployments and all their dependencies ? -->
+		<dependencies>
+			<module name="javax.api" />
+			<module name="javax.jms.api" />
+			<module name="javax.annotation.api" />
+
+			<module name="org.slf4j" />
+			<module name="org.jboss.logging" />
+
+<!-- 			<module	name="deployment.org.darrylmiles.example.ear.ear.org-darrylmiles-example-ee7-jca-eis-rar-0.0.1-SNAPSHOT.rar" /> -->
+		</dependencies>
+	</sub-deployment>
+
+	<sub-deployment name="org-darrylmiles-example-ee7-jca-eis-rar-0.0.1-SNAPSHOT.rar">
+		<module-alias name="org.darrylmiles.example.rar"/>
+
+		<!-- FIXME: We want all classes to be private implementation
+		details, except for some packages that we publish/export,
+		how do we do this with JBoss modules system ??? -->
+<!-- 		<exports> -->
+<!-- 			<include path="org/darrylmiles/example/ee7/jca/eis/rar/cci/**" /> -->
+<!-- 			<include path="org/darrylmiles/example/ee7/jca/eis/rar/spi/**" /> -->
+<!-- 		</exports> -->
+		<dependencies>
+			<module name="javax.api" />
+			<module name="javax.annotation.api" />
+			<module name="javax.transaction.api" />
+			<!-- <module name="javax.jms.api" /> -->
+
+			<!-- FIXME: Do we really needs to mark this export="true" ???
+			  I was not sure so I made it so.
+			  Again OSGi get this right, it knows which packages need which import packages, 
+			  so when it comes to export packages, 
+			  it only re-exports the packages needed by those parts  -->
+			<module name="javax.resource.api" export="true"/>
+
+			<module name="org.slf4j" />
+			<module name="org.jboss.logging" />
+		</dependencies>
+	</sub-deployment>
+</jboss-deployment-structure>

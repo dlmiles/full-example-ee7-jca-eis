@@ -1,0 +1,135 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<groupId>org.darrylmiles.example</groupId>
+		<artifactId>parent</artifactId>
+		<version>0.0.1-SNAPSHOT</version>
+		<relativePath>../pom.xml</relativePath>
+	</parent>
+	<artifactId>ee7-jca-eis-rar</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>rar</packaging>
+	<name>${project.groupId}.${project.artifactId}</name>
+	<description>Example RAR Packaging</description>
+	<build>
+		<finalName>${project.groupId}.${project.artifactId}-${project.version}</finalName>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.jboss.jandex</groupId>
+				<artifactId>jandex-maven-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>make-index</id>
+						<goals>
+							<goal>jandex</goal>
+						</goals>
+						<configuration>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-rar-plugin</artifactId>
+				<configuration>
+					<warnOnMissingRaXml>false</warnOnMissingRaXml><!-- EE6+ uses annotations -->
+				</configuration>
+			</plugin>
+			<plugin>
+				<artifactId>maven-dependency-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>assemble-rar-client</id>
+						<phase>package</phase>
+						<goals>
+							<goal>unpack</goal>
+						</goals>
+						<configuration>
+							<actTransitively>false</actTransitively>
+							<artifactItems>
+								<artifactItem>
+									<groupId>${project.groupId}</groupId>
+									<artifactId>ee7-jca-eis-rar-impl</artifactId>
+									<version>${version.defaultVersion}</version>
+								</artifactItem>
+							</artifactItems>
+							<excludeTransitive>true</excludeTransitive>
+							<outputDirectory>${project.build.directory}/rar-client</outputDirectory>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<!-- DLM magic? Build an extra JAR artifact, with classifier=rar-client that is
+				attached to GAV but not picked up by accident by default, that allows the import
+				of just the public API parts (like an EJB client) -->
+				<artifactId>maven-jar-plugin</artifactId>
+				<executions>
+					<execution>
+						<id>package-rar-client</id>
+						<phase>package</phase>
+						<goals>
+							<goal>jar</goal>
+						</goals>
+						<configuration>
+							<jarPath>${project.groupId}.${project.artifactId}-${project.version}-rar-client.jar</jarPath>
+							<classifier>rar-client</classifier>
+							<classesDirectory>${project.build.directory}/rar-client</classesDirectory>
+							<includes>
+								<include>org/darrylmiles/example/ee7/jca/eis/rar/cci/**</include>
+								<include>org/darrylmiles/example/ee7/jca/eis/rar/spi/**</include>
+							</includes>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
+	<dependencies>
+		<dependency>
+			<groupId>${project.groupId}</groupId>
+			<artifactId>ee7-jca-eis-rar-impl</artifactId>
+			<version>${version.defaultVersion}</version>
+			<exclusions>
+				<exclusion>
+					<!--
+					Again Maven not so helpful here, this is only used by the private/internal
+					 classes of the RAR implementation.  But maven-rar-plugin will copy the JAR
+					 into the RAR which is not what we want.
+					So we need to exclude it, when really it should be an cascaded Import-Package
+					 (OSGi terminology) since it is still a runtime import requirement of this
+					 resulting RAR.
+					If OSGi was just supported it would resolve this and also the matter with
+					 resolving the exported parts in jboss-deployment-structure.xml -->
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-api</artifactId>
+				</exclusion>
+			</exclusions>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.spec.javax.resource</groupId>
+			<artifactId>jboss-connector-api_1.6_spec</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.arquillian.junit</groupId>
+			<artifactId>arquillian-junit-standalone</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
+
+</project>

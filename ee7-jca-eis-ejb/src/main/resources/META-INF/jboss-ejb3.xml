@@ -1,0 +1,14 @@
+<jboss xmlns="http://www.jboss.com/xml/ns/javaee" 
+    xmlns:jee="http://java.sun.com/xml/ns/javaee"
+    xmlns:mdb="urn:resource-adapter-binding"
+    xmlns:security="urn:security">
+
+    <!-- We do it this way as the EJB classes themselves try not to contain any JBoss hard
+        dependencies such as @org.jboss.ejb.annotations.ResourceAdapter() would create -->
+    <jee:assembly-descriptor>
+        <mdb:resource-adapter-binding>
+            <jee:ejb-name>ScConsumerMdbImpl</jee:ejb-name>
+            <mdb:resource-adapter-name>org-darrylmiles-ee7-jca-eis-rar</mdb:resource-adapter-name>
+        </mdb:resource-adapter-binding>
+    </jee:assembly-descriptor>
+</jboss>

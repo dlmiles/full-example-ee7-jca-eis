@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>org.darrylmiles.example</groupId>
+	<artifactId>parent</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>pom</packaging>
+	<name>${project.groupId}.${project.artifactId}</name>
+	<description>Example EE7-JCA-EIS Parent</description>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+		<version.defaultVersion>0.0.1-SNAPSHOT</version.defaultVersion>
+		<version.maven-compiler-plugin>3.0</version.maven-compiler-plugin>
+		<version.maven-ear-plugin>2.9</version.maven-ear-plugin>
+		<version.maven-ejb-plugin>2.3</version.maven-ejb-plugin>
+		<version.maven-failsafe-plugin>2.17</version.maven-failsafe-plugin>
+		<version.maven-jar-plugin>2.3.2</version.maven-jar-plugin><!-- 2.3.2 due to M2E issue -->
+		<version.maven-surefire-plugin>2.17</version.maven-surefire-plugin>
+		<version.maven-rar-plugin>2.3</version.maven-rar-plugin>
+		<version.jandex-maven-plugin>1.0.1</version.jandex-maven-plugin>
+		<version.junit>4.11</version.junit>
+		<version.slf4j>1.7.4</version.slf4j>
+		<version.testng>6.4</version.testng>
+		<version.arquillian-bom>1.1.4.Final</version.arquillian-bom><!--  FIXME upgrade newer Arq when it works -->
+		<version.jboss-javaee>3.0.2.Final</version.jboss-javaee><!-- FIXME upgrade EE7 when it works -->
+		<version.jboss-as>7.2.0.Final</version.jboss-as>
+		<version.wildfly-as>8.1.0.Final</version.wildfly-as>
+	</properties>
+	<modules>
+		<module>ee7-jca-eis-impl</module>
+		<module>ee7-jca-eis-rar-impl</module>
+		<module>ee7-jca-eis-rar</module>
+		<module>ee7-jca-eis-ejb</module>
+		<module>ee7-jca-eis-ear</module>
+		<module>ee7-jca-eis-ear-testing</module>
+	</modules>
+	<build>
+		<finalName>${project.groupId}.${project.artifactId}-${project.version}</finalName>
+		<plugins>
+		</plugins>
+		<pluginManagement>
+			<plugins>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-compiler-plugin</artifactId>
+					<version>${version.maven-compiler-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-ear-plugin</artifactId>
+					<version>${version.maven-ear-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-ejb-plugin</artifactId>
+					<version>${version.maven-ejb-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-failsafe-plugin</artifactId>
+					<version>${version.maven-failsafe-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-jar-plugin</artifactId>
+					<version>${version.maven-jar-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-surefire-plugin</artifactId>
+					<version>${version.maven-surefire-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.apache.maven.plugins</groupId>
+					<artifactId>maven-rar-plugin</artifactId>
+					<version>${version.maven-rar-plugin}</version>
+				</plugin>
+				<plugin>
+					<groupId>org.jboss.jandex</groupId>
+					<artifactId>jandex-maven-plugin</artifactId>
+					<version>${version.jandex-maven-plugin}</version>
+				</plugin>
+				<!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
+				<plugin>
+					<groupId>org.eclipse.m2e</groupId>
+					<artifactId>lifecycle-mapping</artifactId>
+					<version>1.0.0</version>
+					<configuration>
+						<lifecycleMappingMetadata>
+							<pluginExecutions>
+								<pluginExecution>
+									<pluginExecutionFilter>
+										<groupId>
+											org.jboss.jandex
+										</groupId>
+										<artifactId>
+											jandex-maven-plugin
+										</artifactId>
+										<versionRange>
+											[1.0.1,)
+										</versionRange>
+										<goals>
+											<goal>jandex</goal>
+										</goals>
+									</pluginExecutionFilter>
+									<action>
+										<ignore></ignore>
+									</action>
+								</pluginExecution>
+							</pluginExecutions>
+						</lifecycleMappingMetadata>
+					</configuration>
+				</plugin>
+			</plugins>
+		</pluginManagement>
+	</build>
+	<dependencyManagement>
+		<dependencies>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>${version.slf4j}</version>
+			</dependency>
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>${version.junit}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.arquillian</groupId>
+				<artifactId>arquillian-bom</artifactId>
+				<version>${version.arquillian-bom}</version>
+				<scope>import</scope>
+				<type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec</groupId>
+				<artifactId>jboss-javaee-6.0</artifactId>
+				<version>${version.jboss-javaee}</version>
+				<!-- <scope>import</scope> -->
+				<type>pom</type>
+			</dependency>
+			<dependency>
+				<groupId>org.jboss.spec.javax.resource</groupId>
+				<artifactId>jboss-connector-api_1.6_spec</artifactId>
+				<version>1.0.1.Final</version><!-- Lookup the value imported from org.jboss.spec:jboss-javaee-6.0 -->
+				<scope>test</scope>
+			</dependency>
+			<dependency>
+				<groupId>org.testng</groupId>
+				<artifactId>testng</artifactId>
+				<version>${version.testng}</version>
+			</dependency>
+			
+		</dependencies>
+	</dependencyManagement>
+	<repositories>
+		<!-- You should seriously consider using a repository manager or declare repositories in your settings.xml.
+		      See http://www.sonatype.com/people/2009/02/why-putting-repositories-in-your-poms-is-a-bad-idea/   -->
+		<repository>
+			<!-- The JBoss Public repository is a composite repository of several major repositories. 
+			  See http://community.jboss.org/wiki/MavenGettingStarted-Users -->
+			<id>jboss-public-group</id>
+			<url>http://repository.jboss.org/nexus/content/groups/public</url>
+			<releases>
+				<enabled>true</enabled>
+			</releases>
+			<!-- You can disable snapshot resolution to speed up your builds -->
+			<snapshots>
+				<enabled>true</enabled>
+			</snapshots>
+		</repository>
+	</repositories>
+	<profiles>
+	</profiles>
+</project>
