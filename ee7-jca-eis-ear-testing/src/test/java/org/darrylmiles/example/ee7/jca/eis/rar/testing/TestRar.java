@@ -1,6 +1,7 @@
 package org.darrylmiles.example.ee7.jca.eis.rar.testing;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 import java.io.File;
 import java.util.UUID;
@@ -8,6 +9,7 @@ import java.util.logging.Logger;
 
 import javax.annotation.Resource;
 import javax.resource.cci.ConnectionFactory;
+
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.ConnectionFactoryImpl;
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.ConnectionImpl;
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.EisConnection;
@@ -15,6 +17,7 @@ import org.darrylmiles.example.ee7.jca.eis.rar.cci.EisManagedConnectionFactory;
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.EisManagedConnectionMetaData;
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.ManagedConnectionFactoryImpl;
 import org.darrylmiles.example.ee7.jca.eis.rar.cci.ManagedConnectionImpl;
+import org.darrylmiles.example.ee7.jca.eis.rar.driver.PerMinuteTimerTask;
 import org.darrylmiles.example.ee7.jca.eis.rar.spi.ResourceAdapterImpl;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
@@ -35,8 +38,8 @@ public class TestRar {
 	 *
 	 * @return The deployment archive
 	 */
-	@Deployment
-	public static ResourceAdapterArchive createDeployment() {
+	@Deployment(name= "RAR", testable = false, order = 1)
+	public static ResourceAdapterArchive createConnector() {
 		ResourceAdapterArchive raa = ShrinkWrap.create(ResourceAdapterArchive.class, deploymentName + ".rar");
 		JavaArchive ja = ShrinkWrap.create(JavaArchive.class, UUID.randomUUID().toString() + ".jar");
 		ja.addClasses(
@@ -47,14 +50,20 @@ public class TestRar {
 				EisManagedConnectionFactory.class,
 				ManagedConnectionFactoryImpl.class,
 				EisConnection.class,
-				ConnectionImpl.class);
+				ConnectionImpl.class,
+				PerMinuteTimerTask.class);
 		raa.addAsLibrary(ja);
-		//raa.addAsManifestResource("META-INF/ironjacamar.xml", "ironjacamar.xml");
-		File file = new File("src/main/rar/META-INF/ironjacamar.xml");
-		assertTrue(file.isFile());
-		raa.addAsManifestResource(file, file.getName());		// "ironjacamar.xml"
+		raa.addAsManifestResource(new File("../ee7-jca-eis-rar/src/main/rar/META-INF/ironjacamar.xml"), "ironjacamar.xml");
+		//File file = new File("src/main/rar/META-INF/ironjacamar.xml");
+		//assertTrue(file.isFile());
+		//raa.addAsManifestResource(file, file.getName());		// "ironjacamar.xml"
 
 		return raa;
+	}
+
+	@Deployment(order = 2)
+	public static JavaArchive createClient() {
+	    return ShrinkWrap.create(JavaArchive.class);
 	}
 
 	/** resource */
