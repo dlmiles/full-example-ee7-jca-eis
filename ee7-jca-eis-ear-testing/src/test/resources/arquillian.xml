@@ -5,4 +5,11 @@
 
    <defaultProtocol type="Servlet 3.0" />
 
+   <engine>
+      <!-- Causes a copy of the final test that is deployed to be keep around
+           (so I can manually check it over, instead of it being deleted from
+           temporary directory) -->
+      <property name="deploymentExportPath">target</property>
+   </engine>
+
 </arquillian>

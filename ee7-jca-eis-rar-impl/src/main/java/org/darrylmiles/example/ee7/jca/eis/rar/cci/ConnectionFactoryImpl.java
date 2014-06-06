@@ -9,15 +9,15 @@ import javax.naming.NamingException;
 import javax.naming.Reference;
 import javax.resource.ResourceException;
 import javax.resource.cci.Connection;
-import javax.resource.cci.ConnectionFactory;
 import javax.resource.cci.ConnectionSpec;
 import javax.resource.cci.RecordFactory;
 import javax.resource.cci.ResourceAdapterMetaData;
+import javax.resource.spi.ConnectionManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class ConnectionFactoryImpl implements ConnectionFactory {
+public class ConnectionFactoryImpl implements EisConnectionFactory {
 
 	private static final Logger log = LoggerFactory.getLogger(ConnectionFactoryImpl.class);
 
@@ -25,6 +25,7 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 	private Queue<ConnectionImpl> connectionQueue;
 	private RecordFactoryImpl recordFactory;
 	private ResourceAdapterMetaDataImpl resourceAdapterMetaData;
+	private ConnectionManager connectionManager;
 
 	/**
 	 * 
@@ -39,6 +40,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 
 	public ConnectionFactoryImpl() {
 		init();
+	}
+
+	public ConnectionFactoryImpl(ConnectionManager cxManager) {
+		init();
+		log.debug("cxManager={}", cxManager);
+		this.connectionManager = cxManager;
 	}
 
 	@Override
@@ -101,4 +108,12 @@ public class ConnectionFactoryImpl implements ConnectionFactory {
 	/*package*/ void registerConnection(/*@Nonnull*/ ConnectionImpl connection) {
 		connectionQueue.add(connection);
 	}
+
+	/**
+	 * @see EisConnectionFactory
+	 */
+	public Object methodConnectionFactory(Object obj) {
+		return String.valueOf(obj) + "-methodConnectionFactory";
+	}
+
 }

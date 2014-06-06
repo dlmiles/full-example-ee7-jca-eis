@@ -5,7 +5,7 @@
 		When it is inside an EAR, only the toplevel META-INF/jboss-deployment-structure.xml is looked at -->
 
 	<deployment>
-<!-- 		<module-alias name="org.darrylmiles.example.rar"/> -->
+		<module-alias name="org.darrylmiles.example.testing"/>
 
 		<!-- FIXME: We want all classes to be private implementation
 		details, except for some packages that we publish/export,
@@ -29,6 +29,9 @@
 
 			<module name="org.slf4j" />
 			<module name="org.jboss.logging" />
+
+			<!-- <module name="deployment.TestRar.rar"/> --><!-- org.darrylmiles.example.rar -->
+			<module name="deployment.org.darrylmiles.example.rar"/>
 		</dependencies>
 	</deployment>
 </jboss-deployment-structure>

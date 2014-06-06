@@ -6,14 +6,15 @@ import org.darrylmiles.example.eis.EisImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EisConnection implements Work {
+public class EisConnectionWorker implements Work {
 
-	private static final Logger log = LoggerFactory.getLogger(EisConnection.class);
+	private static final Logger log = LoggerFactory.getLogger(EisConnectionWorker.class);
 
 	private EisImpl eisImpl;
 
 	private Thread thread;
 	private boolean shutdownFlag;
+	private boolean shutdownCompletedFlag;
 	private boolean startupReadyFlag;
 	private long statupMillis;
 	private long lastLoopMillis;
@@ -34,13 +35,24 @@ public class EisConnection implements Work {
 			try {
 				log.debug("statupMillis={}, lastLoopMillis={}", statupMillis, lastLoopMillis);
 				//Thread.sleep(10000);
-				wait(10000);
+				synchronized (this) {
+					if(shutdownFlag)
+						break;
+					wait(10000);
+				}
 			} catch(InterruptedException t) {
 				log.debug("", t);
 				setShutdownFlag();
 			}
 		}
-		log.debug("loopCounter={}", loopCounter);
+
+		try {
+			log.debug("loopCounter={}", loopCounter);
+		} catch(Exception e) {
+			log.debug("", e);
+		}
+
+		setShutdownCompletedFlag();
 	}
 
 	public boolean waitForStartupReady(/*@Nonnegative*/ long timeout) throws InterruptedException {
@@ -131,6 +143,14 @@ public class EisConnection implements Work {
 		} catch (InterruptedException e) {
 			log.warn("", e);
 		}
+	}
+
+	private synchronized void setShutdownCompletedFlag() {
+		this.shutdownCompletedFlag = true;
+	}
+
+	public synchronized boolean isShutdownCompleted() {
+		return shutdownCompletedFlag;
 	}
 
 }

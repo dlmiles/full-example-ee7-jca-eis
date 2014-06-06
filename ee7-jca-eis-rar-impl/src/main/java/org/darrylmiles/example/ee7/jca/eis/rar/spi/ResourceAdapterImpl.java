@@ -13,6 +13,8 @@ import javax.naming.InitialContext;
 import javax.naming.InvalidNameException;
 import javax.naming.Name;
 import javax.naming.NamingException;
+import javax.naming.Reference;
+import javax.resource.Referenceable;
 import javax.resource.ResourceException;
 import javax.resource.spi.ActivationSpec;
 import javax.resource.spi.BootstrapContext;
@@ -29,10 +31,9 @@ import javax.transaction.xa.XAResource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.darrylmiles.example.ee7.jca.eis.rar.Constants;
 import org.darrylmiles.example.ee7.jca.eis.rar.driver.PerMinuteTimerTask;
-import org.darrylmiles.example.ee7.jca.eis.rar.driver.EisConnection;
+import org.darrylmiles.example.ee7.jca.eis.rar.driver.EisConnectionWorker;
 
 @Connector(
 	description = Constants.ADAPTER_SHORT_DESCRIPTION,
@@ -40,9 +41,9 @@ import org.darrylmiles.example.ee7.jca.eis.rar.driver.EisConnection;
 	vendorName = Constants.ADAPTER_VENDOR_NAME,
 	eisType = Constants.ADAPTER_EIS_TYPE,
 	licenseDescription = Constants.ADAPTER_LICENSE_DESCRIPTION,
-	transactionSupport = TransactionSupportLevel.NoTransaction,
+	transactionSupport = TransactionSupportLevel.LocalTransaction,
 	version = Constants.ADAPTER_VERSION)
-public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
+public class ResourceAdapterImpl implements ResourceAdapter, Referenceable, Serializable {
 
 	/**
 	 * 
@@ -55,7 +56,7 @@ public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
 	private transient XATerminator xaTerminator;
 	private transient Timer timer;
 
-	private transient EisConnection eisConnection;
+	private transient EisConnectionWorker eisConnection;
 	private transient PerMinuteTimerTask perMinuteTimerTask;
 
 	private transient ResourceAdapterCustomImpl resourceAdapterCustomImpl;
@@ -72,7 +73,7 @@ public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
 		resourceAdapterCustomImpl = new ResourceAdapterCustomImpl(this);
 
 		try {
-			eisConnection = new EisConnection();
+			eisConnection = new EisConnectionWorker();
 			workManager.startWork(eisConnection);
 
 			try {
@@ -103,13 +104,37 @@ public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
 			log.warn("", e);
 			//throw new ResourceAdapterInternalException(e);
 		}
-		bind();
+		//bind();
 		log.debug("workManager={}, xaTerminator={}, timer={}", workManager, xaTerminator, timer);
 	}
 
 	@Override
 	public void stop() {
 		log.debug("");
+
+		if(perMinuteTimerTask != null) {
+			perMinuteTimerTask.cancel();
+			perMinuteTimerTask = null;
+		}
+
+		// SIGNAL phase
+		if(eisConnection != null)
+			eisConnection.setShutdownFlag();
+
+		// WAIT phase
+		long timeout = 10000;
+		if(eisConnection != null) {
+			try {
+				eisConnection.waitForShutdown(timeout);
+			} catch (InterruptedException e) {
+				timeout = 1;
+				log.warn("", e);
+			}
+			if(eisConnection.isShutdownCompleted() == false) {
+				log.warn("eisConnection={} did not complete shutdown after waiting 10000ms, potential memory/resource leak?");
+			}
+			eisConnection = null;
+		}
 		unbind();
 	}
 
@@ -184,6 +209,12 @@ public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
 			synchronized (newJndiName) {
 				try {
 					InitialContext ctx = new InitialContext();
+					// FIXME we get NPE on this:
+					//  Caused by: java.lang.NullPointerException
+					// at org.jboss.as.naming.InitialContext.getURLOrDefaultInitCtx(InitialContext.java:151)
+					// at javax.naming.InitialContext.bind(InitialContext.java:429) [rt.jar:1.8.0_05]
+					// at javax.naming.InitialContext.bind(InitialContext.java:429) [rt.jar:1.8.0_05]
+					// at org.darrylmiles.example.ee7.jca.eis.rar.spi.ResourceAdapterImpl.bind(ResourceAdapterImpl.java:188) [9e70b4c0-f7cb-4e60-8d58-8eef455f5463.jar:]
 					ctx.bind(jndiName, resourceAdapterCustomImpl);
 					jndiName = newJndiName;
 					bf = Boolean.TRUE;
@@ -212,19 +243,47 @@ public class ResourceAdapterImpl implements ResourceAdapter, Serializable {
 		return bf;
 	}
 
+	/////////////////////////////////////////////////////////////////////////
+
 	// Required EE contract to implement #equals(Object)
-	public boolean equals(Object o) {
-		if(o == null)
+	public boolean equals(Object obj) {
+		if(obj == null)
 			return false;
-		if(o == this)
+		if(obj == this)
 			return true;
-		if((o instanceof ResourceAdapterImpl) == false)
+		if((obj instanceof ResourceAdapterImpl) == false)
 			return false;
-		return false;
+		// FIXME what are the rules on this?
+		return super.equals(obj);
 	}
 
 	// Required EE contract to implement #hashCode()
 	public int hashCode() {
 		return super.hashCode();
 	}
+
+	/////////////////////////////////////////////////////////////////////////
+
+	private Reference reference;
+
+	/**
+	 * @see javax.resource.Referenceable
+	 */
+	// @Nonnull
+	@Override
+	public Reference getReference() throws NamingException {
+		if(reference == null)	// API contract says we can not return null
+			throw new NamingException("reference has not been set");
+		return reference;
+	}
+
+	/**
+	 * @see javax.resource.Referenceable
+	 */
+	@Override
+	public void setReference(/*@Nonnull*/ Reference reference) {
+		this.reference = reference;
+		log.debug("reference={}", reference);
+	}
+
 }

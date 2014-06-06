@@ -26,6 +26,8 @@
 		<version.jboss-javaee>3.0.2.Final</version.jboss-javaee><!-- FIXME upgrade EE7 when it works -->
 		<version.jboss-as>7.2.0.Final</version.jboss-as>
 		<version.wildfly-as>8.1.0.Final</version.wildfly-as>
+		<version.arquillian-glassfish>1.0.0.CR4</version.arquillian-glassfish>
+		<version.glassfish>3.1.2</version.glassfish>
 	</properties>
 	<modules>
 		<module>ee7-jca-eis-impl</module>

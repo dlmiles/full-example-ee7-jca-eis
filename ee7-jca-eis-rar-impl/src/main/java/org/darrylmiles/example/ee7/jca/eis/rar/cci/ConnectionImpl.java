@@ -17,7 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.darrylmiles.example.ee7.jca.eis.rar.Constants;
 
-public class ConnectionImpl implements EisConnection, Connection {
+public class ConnectionImpl implements EisConnection {
 
 	private static final Logger log = LoggerFactory.getLogger(ConnectionImpl.class);
 
@@ -32,7 +32,7 @@ public class ConnectionImpl implements EisConnection, Connection {
 		this.connectionSpec = properties;
 		init();
 
-		processConnectionSpec(properties);
+		processConnectionSpec(properties);		// we probably need to extract userName from properties
 		connectionMetaData = new ConnectionMetaDataImpl(Constants.PRODUCT_NAME, Constants.PRODUCT_VERSION, null);
 
 		connectionFactoryImpl.registerConnection(this);

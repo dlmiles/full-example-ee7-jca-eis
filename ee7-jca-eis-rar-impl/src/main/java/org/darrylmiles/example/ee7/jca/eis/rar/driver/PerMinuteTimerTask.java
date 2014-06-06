@@ -31,7 +31,7 @@ public class PerMinuteTimerTask extends TimerTask {
 
 	@Override
 	public void run() {
-		log.debug("");
+		log.debug("threadName={}", Thread.currentThread().getName());
 	}
 
 }

@@ -53,7 +53,7 @@ public class ManagedConnectionImpl implements ManagedConnection {
 
 	@Override
 	public void associateConnection(Object connection) throws ResourceException {
-		log.debug("connection=connection", connection);
+		log.debug("connection={}", connection);
 		if(connection == null)
 			return;
 		if((connection instanceof ManagedConnectionImpl) == false)
