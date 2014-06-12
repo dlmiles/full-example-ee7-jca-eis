@@ -118,12 +118,12 @@ public class ConnectionImpl implements EisConnection {
 	@Override
 	public String customStringMethod() {
 		log.debug("");
-		return "customerStringMethod-NO-ARG";
+		return "customStringMethod-NO-ARG";
 	}
 
 	@Override
 	public String customStringMethod(String arg) {
 		log.debug("arg={}", arg);
-		return "customerStringMethod-" + arg;
+		return "customStringMethod-" + arg;
 	}
 }

@@ -113,7 +113,7 @@ public class ConnectionFactoryImpl implements EisConnectionFactory {
 	 * @see EisConnectionFactory
 	 */
 	public Object methodConnectionFactory(Object obj) {
-		return String.valueOf(obj) + "-methodConnectionFactory";
+		return "methodConnectionFactory-" + String.valueOf(obj);
 	}
 
 }
